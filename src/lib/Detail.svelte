@@ -1,5 +1,5 @@
 <script>
- import {onMount} from 'svelte';import {supabase,employeeAction} from './supabase';import Selector from './Selector.svelte';import JobSeekers from './JobSeekers.svelte';
+ import {onMount} from 'svelte';import {supabase,employeeAction} from './supabase';import Selector from './Selector.svelte';import JobSeekers from './JobSeekers.svelte';import PersonLinks from './PersonLinks.svelte';
  export let table;export let id;export let back;export let saved;export let canEditEmployees=true;
  let original=null,form={},editing=id==='new',busy=false,loading=id!=='new',error='',createUser=false,loginEmail='',password='',manager=false;
  const fields={Jobs:[['Title','Title']],Companies:[['nameCompany','Company Name']],People:[['nameFirst','First Name'],['nameLast','Last Name']],Employees:[['nameFirst','First Name'],['nameLast','Last Name'],['email','Email']],Industries:[['nameIndustry','Name']],Skills:[['nameSkill','Name']],Licenses:[['nameLicense','Name']],Education:[['nameEducation','Name']]};
@@ -22,6 +22,16 @@
 {#if table==='Employees'}<label class="check"><input type="checkbox" bind:checked={form.flag_Manager} disabled={!editing||busy||id==='new'}/>Manager</label>{#if id==='new'}<small>New Employees start without Manager access.</small>{/if}<label>User Account<input readonly value={form.id_User?'Linked':'No account'}/></label>{/if}
 </div>{#if editing}<small>* Required fields</small><div class="actions"><button type="button" class="secondary" disabled={busy} on:click={cancel}>Cancel</button><button disabled={busy||(table==='Jobs'&&!form.id_Company)}>{busy?'Saving…':'Save'}</button></div>{/if}</form>
 {#if table==='Jobs'&&id!=='new'&&!editing}<JobSeekers job={id}/>{/if}
+{#if table==='People'&&id!=='new'&&!editing&&original?.flag_Seeker}
+<div class="pair-grid">
+<PersonLinks person={id} junctionTable="PersonIndustries" linkColumn="id_Industry" lookupTable="Industries" nameField="nameIndustry" label="Industries" singular="Industry"/>
+<PersonLinks person={id} junctionTable="PersonSkills" linkColumn="id_Skill" lookupTable="Skills" nameField="nameSkill" label="Skills" singular="Skill"/>
+</div>
+<div class="pair-grid">
+<PersonLinks person={id} junctionTable="PersonEducation" linkColumn="id_Education" lookupTable="Education" nameField="nameEducation" label="Education" singular="Education"/>
+<PersonLinks person={id} junctionTable="PersonLicenses" linkColumn="id_License" lookupTable="Licenses" nameField="nameLicense" label="Licenses" singular="License"/>
+</div>
+{/if}
 {#if table==='Employees'&&id!=='new'&&!form.id_User&&!editing&&canEditEmployees}
 {#if !createUser}<div class="actions"><button on:click={()=>{loginEmail=form.email||'';manager=form.flag_Manager;createUser=true;}}>Create User</button></div>{:else}<form class="panel" on:submit|preventDefault={makeUser}><h2>Create User</h2><div class="form-grid"><label>Login Email<input type="email" required bind:value={loginEmail}/></label><label>Temporary Password<input type="password" autocomplete="new-password" required bind:value={password}/></label><label class="check"><input type="checkbox" bind:checked={manager}/>Manager access</label></div><p class:valid={passwordValid}>Password requires at least 12 characters with an uppercase letter, lowercase letter, number and symbol.</p><div class="actions"><button type="button" class="secondary" disabled={busy} on:click={()=>{createUser=false;password='';}}>Cancel</button><button disabled={busy||!passwordValid||!loginEmail}>{busy?'Creating…':'Create User'}</button></div></form>{/if}
 {/if}{/if}

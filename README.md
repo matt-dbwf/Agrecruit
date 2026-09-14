@@ -75,6 +75,18 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.16 — Pair up the Seeker link panels
+
+On the Person detail page, Industries+Skills now sit side by side, and Education+Licenses sit side by side below them, instead of all four stacking full-width. Stacks back to one column on narrow/mobile widths. No database or Edge Function changes; frontend only.
+
+## v0.1.15 — Remove tests folder
+
+Removed the `tests/` folder and the `test` script from `package.json`. Those were request-string regression checks (correct quoting/sorting/embeds against Supabase/PostgREST), not required to build or run the app; `npm run dev`/`build`/`preview` were unaffected by their presence and are unaffected by their removal.
+
+## v0.1.14 — Multiple Industries/Skills/Education/Licenses per Seeker
+
+Added four many-to-many link tables (`PersonIndustries`, `PersonSkills`, `PersonEducation`, `PersonLicenses`), following the same pattern as `JobSeekers`: duplicate pairs prohibited, same authenticated-Employee access model. A saved Person marked as a Seeker now shows four link panels below the main form (Industries, Skills, Education, Licenses) — search and link multiple entries from each Settings table, and unlink individually, the same way Seekers are linked to a Job. These panels are hidden for People not marked as Seekers, and for new/unsaved records. Along the way, generalized `Selector.svelte` to support plain single-column lookup tables (via a new `nameField` prop) instead of only tables with a Client/Seeker eligibility flag, so it could be reused here without duplicating search/selection logic. For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.14_Add_person_links.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes needed.
+
 ## v0.1.13 — Settings hub page
 
 Added a dedicated Settings page with quick-link tiles for Industries, Skills, Licenses, Education and (Manager-only) Employees, reachable via a Settings tile on Home and a single Settings link in the sidebar nav. The sidebar's separate Settings subsection (with one link per item) is gone; the nav is now just Jobs, Clients, Seekers, Settings — Companies and People no longer appear there directly (still reachable via their Home page tiles, or by opening a record from Clients/Seekers). No database or Edge Function changes; frontend only.
