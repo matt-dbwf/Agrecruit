@@ -1,0 +1,2 @@
+[functions.employees]
+verify_jwt = false
