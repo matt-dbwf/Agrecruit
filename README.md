@@ -75,6 +75,10 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.25 — Same treatment for Companies/Clients
+
+Mirrored the People/Seekers navigation-context work for Companies/Clients: opening a Company from the Companies list reads "Company"/"← Companies" as before; opening it from the Clients list now reads "Client"/"← Clients". A "Go to Client" button appears next to Edit on Company Detail when the record is flagged as a Client (mirroring "Go to Seeker"); "Go to Company" always appears on Client Detail (every Client is a Company, mirroring "Go to Person"). The People/Seekers field-visibility split (Contact/Address/Employment sections, Industries/Skills/Education/Licenses panels) has no Companies equivalent yet, since Companies only has one field (Company Name) plus the Client flag — nothing to split. No database or Edge Function changes; frontend only.
+
 ## v0.1.24 — Cross-navigation between Person Detail and Seeker Detail
 
 Added a button next to Edit to jump between the two views of the same Person record. On Person Detail, "Go to Seeker" appears only when the record is flagged as a Seeker (opens Seeker Detail for the same record). On Seeker Detail, "Go to Person" always appears (every Seeker is a Person). Both preserve the current record's id and switch only the list-context (People vs Seekers) driving which fields are shown, per v0.1.19/v0.1.20/v0.1.21. No database or Edge Function changes; frontend only.

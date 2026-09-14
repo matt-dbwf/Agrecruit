@@ -1,6 +1,6 @@
 <script>
  import {onMount} from 'svelte';import {supabase,employeeAction} from './supabase';import Selector from './Selector.svelte';import JobSeekers from './JobSeekers.svelte';import PersonLinks from './PersonLinks.svelte';
- export let table;export let id;export let back;export let saved;export let canEditEmployees=true;export let seekerMode=false;export let switchView=()=>{};
+ export let table;export let id;export let back;export let saved;export let canEditEmployees=true;export let seekerMode=false;export let clientMode=false;export let switchView=()=>{};
  let original=null,form={},editing=id==='new',busy=false,loading=id!=='new',error='',createUser=false,loginEmail='',password='',manager=false;
  const fields={Jobs:[['Title','Title']],Companies:[['nameCompany','Company Name']],Employees:[['nameFirst','First Name'],['nameLast','Last Name'],['email','Email']],Industries:[['nameIndustry','Name']],Skills:[['nameSkill','Name']],Licenses:[['nameLicense','Name']],Education:[['nameEducation','Name']]};
  const nameFields=[['nameFirst','First Name'],['nameLast','Last Name']];
@@ -13,15 +13,15 @@
  const fieldType=key=>key==='email'?'email':key==='linkedInURL'?'url':key==='dateOfBirth'?'date':key==='currentSalary'?'number':'text';
  const isRequired=(table,key,flag,form)=>table==='Employees'&&key==='email'?!!form.id_User:flag!==false;
  const singular={Jobs:'Job',Companies:'Company',People:'Person',Employees:'Employee',Industries:'Industry',Skills:'Skill',Licenses:'License',Education:'Education'};
- $: recordLabel=table==='People'?(seekerMode?'Seeker':'Person'):singular[table];
- $: backLabel=table==='People'?(seekerMode?'Seekers':'People'):table;
+ $: recordLabel=table==='People'?(seekerMode?'Seeker':'Person'):table==='Companies'?(clientMode?'Client':'Company'):singular[table];
+ $: backLabel=table==='People'?(seekerMode?'Seekers':'People'):table==='Companies'?(clientMode?'Clients':'Companies'):table;
  onMount(async()=>{if(id==='new'){form=table==='Jobs'?{Status:'Pending',id_Company:''}:table==='Companies'?{flag_Client:false}:table==='People'?{flag_Seeker:seekerMode}:table==='Employees'?{flag_Manager:false}:{};return;}const r=await supabase.from(table).select('*').eq('id',id).single();error=r.error?.message||'';original=r.data;form={...original};loading=false;});
  $: passwordValid=password.length>=12&&/[a-z]/.test(password)&&/[A-Z]/.test(password)&&/[0-9]/.test(password)&&/[^A-Za-z0-9]/.test(password);
  function cancel(){if(id==='new')back();else{form={...original};editing=false;error='';}}
  async function save(){busy=true;error='';try{let data;if(table==='Employees'){data=await employeeAction('save',{...(id==='new'?{}:{id}),...form});}else{const values={};for(const [key]of currentFields){if(key.startsWith('_section_'))continue;values[key]=String(form[key]||'').trim();}if(table==='Jobs'){values.id_Company=form.id_Company;values.Status='Pending';}if(table==='Companies')values.flag_Client=form.flag_Client===true;if(table==='People'){values.flag_Seeker=form.flag_Seeker===true;if(!seekerMode){values.id_Company=form.id_Company||null;values.position=String(form.position||'').trim()||null;}}const r=id==='new'?await supabase.from(table).insert(values).select().single():await supabase.from(table).update(values).eq('id',id).select().single();if(r.error)throw r.error;data=r.data;}original=data;form={...data};editing=false;if(id==='new')saved(data.id);}catch(e){error=e.message;}busy=false;}
  async function makeUser(){busy=true;error='';try{const data=await employeeAction('create-user',{id,email:loginEmail,password,flag_Manager:manager});original=data;form={...data};createUser=false;password='';}catch(e){error=e.message;}busy=false;}
 </script>
-<div class="toolbar"><div><button class="text" on:click={back}>← {backLabel}</button><h1>{id==='new'?'New ':''}{recordLabel}{table==='Jobs'&&original?` #${original['seq']}`:''}</h1></div><div class="button-group">{#if !editing&&!loading&&original&&(table!=='Employees'||canEditEmployees)}<button class="secondary" on:click={()=>{editing=true;createUser=false;}}>Edit</button>{/if}{#if table==='People'&&!editing&&!loading&&original&&(seekerMode||original.flag_Seeker)}<button class="secondary" on:click={switchView}>{seekerMode?'Go to Person':'Go to Seeker'}</button>{/if}</div></div>
+<div class="toolbar"><div><button class="text" on:click={back}>← {backLabel}</button><h1>{id==='new'?'New ':''}{recordLabel}{table==='Jobs'&&original?` #${original['seq']}`:''}</h1></div><div class="button-group">{#if !editing&&!loading&&original&&(table!=='Employees'||canEditEmployees)}<button class="secondary" on:click={()=>{editing=true;createUser=false;}}>Edit</button>{/if}{#if table==='People'&&!editing&&!loading&&original&&(seekerMode||original.flag_Seeker)}<button class="secondary" on:click={switchView}>{seekerMode?'Go to Person':'Go to Seeker'}</button>{/if}{#if table==='Companies'&&!editing&&!loading&&original&&(clientMode||original.flag_Client)}<button class="secondary" on:click={switchView}>{clientMode?'Go to Company':'Go to Client'}</button>{/if}</div></div>
 {#if error}<p role="alert" class="error">{error}</p>{/if}
 {#if loading}<p>Loading…</p>{:else if id==='new'||original}
 <form class="panel" on:submit|preventDefault={save}><div class="form-grid">
