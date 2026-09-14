@@ -75,6 +75,14 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.6 — Brand logo
+
+Replaced the text "Agribusiness / Recruitment" brand mark with the actual Agrecruit horizontal logo, shown on the sign-in screen, the "connect your app" screen, and the sidebar (still linking Home). The image is currently hotlinked from `agrecruit.com.au` rather than bundled locally — that was a limitation of the environment this change was generated in (no outbound network access to download the binary), not a deliberate choice. Recommended follow-up: download the logo file yourself, add it under `src/assets/`, and change the single `logoUrl` constant in `App.svelte` to a local import so the app doesn't depend on the marketing site staying up. No database or Edge Function changes; frontend only.
+
+## v0.1.5 — Home page
+
+Signed-in users now land on a Home page instead of the Jobs list, with quick-link tiles to every section (Employees only shown to Managers). Clicking the "Agribusiness Recruitment" brand in the top-left from anywhere in the app also returns to Home. No database or Edge Function changes; frontend only.
+
 ## v0.1.4 — Settings tables
 
 Added four reference/lookup tables: Industries (`nameIndustry`), Skills (`nameSkill`), Licenses (`nameLicense`), Education (`nameEducation`). Each is a simple single-field table with a `New`/list/detail screen, reachable from the main navigation. Access matches Companies/People/Jobs: any signed-in user linked to an Employee record has full read/write access. Name fields are unique per table to keep these lists usable as a controlled vocabulary; drop the `UNIQUE` constraint in the migration if you don't want that enforced. For a new installation, run the original setup SQL, then `Agribusiness_Recruitment_v0.1.4_Add_settings_tables.sql`. For an existing installation, stop Vite, run the migration, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes are needed. These tables aren't yet linked to Companies/People — that relationship is left for a future update.
