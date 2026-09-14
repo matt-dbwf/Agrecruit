@@ -4,7 +4,8 @@
  import { supabase,searchText } from './supabase';
  export let table;export let open;
  let rows=[], filters={}, page=0,count=0,busy=false,error='',timer,version=0;
- const definitions={Jobs:[['seq','number'],['Status','status'],['Title','text']],Companies:[['nameCompany','text','Company Name']],People:[['nameFirst','text','First Name'],['nameLast','text','Last Name'],['flag_Seeker','boolean','Seeker']],Employees:[['nameFirst','text','First Name'],['nameLast','text','Last Name'],['email','text','Email'],['id_User','account','User Account'],['flag_Manager','boolean','Manager']]};
+ const definitions={Jobs:[['seq','number'],['Status','status'],['Title','text']],Companies:[['nameCompany','text','Company Name']],People:[['nameFirst','text','First Name'],['nameLast','text','Last Name'],['flag_Seeker','boolean','Seeker']],Employees:[['nameFirst','text','First Name'],['nameLast','text','Last Name'],['email','text','Email'],['id_User','account','User Account'],['flag_Manager','boolean','Manager']],Industries:[['nameIndustry','text','Name']],Skills:[['nameSkill','text','Name']],Licenses:[['nameLicense','text','Name']],Education:[['nameEducation','text','Name']]};
+ const singular={Jobs:'Job',Companies:'Company',People:'Person',Employees:'Employee',Industries:'Industry',Skills:'Skill',Licenses:'License',Education:'Education'};
  $: columns=definitions[table];
  $: reset(table);
  function reset(t){filters={};page=0;load(t,0,{});}
@@ -16,7 +17,7 @@
  function turn(delta){page+=delta;load(table,page,filters);}
  onDestroy(()=>{clearTimeout(timer);version++;});
 </script>
-<div class="toolbar"><div><h1>{table}</h1><p>{count} record{count===1?'':'s'}</p></div><button on:click={()=>open('new')}>New {table==='People'?'Person':table==='Companies'?'Company':table==='Employees'?'Employee':'Job'}</button></div>
+<div class="toolbar"><div><h1>{table}</h1><p>{count} record{count===1?'':'s'}</p></div><button on:click={()=>open('new')}>New {singular[table]}</button></div>
 {#if error}<p role="alert" class="error">{error}</p>{/if}
 <div class="panel table-wrap"><table><thead><tr>{#each columns as [key,type,label]}<th>{label||key}
  {#if ['boolean','account','status'].includes(type)}<select aria-label={`Filter ${label||key}`} bind:value={filters[key]} on:change={schedule}><option value="">All</option>{#if type==='status'}<option>Pending</option>{:else}<option value="true">{type==='account'?'Linked':'Yes'}</option><option value="false">{type==='account'?'No account':'No'}</option>{/if}</select>{:else}<input aria-label={`Filter ${label||key}`} placeholder="Filter…" bind:value={filters[key]} on:input={schedule}/>{/if}

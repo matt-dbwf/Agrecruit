@@ -26,7 +26,7 @@ Set Supabase Auth password policy to match the UI: minimum 12 characters with up
 
 ## 3. Configure and run the frontend
 
-Copy `.env.example` to `.env` and set:
+Create a `.env` file in the project root and set:
 
 ```text
 VITE_SUPABASE_URL=https://YOUR_PROJECT_REFERENCE.supabase.co
@@ -74,6 +74,10 @@ Auth administration and subsequent database operations cross service boundaries.
 Company–Person relationships, recruiting stages, documents, placement records and additional statuses are intentionally left for later requirements.
 
 Reference: https://supabase.com/docs/guides/functions/auth
+
+## v0.1.4 — Settings tables
+
+Added four reference/lookup tables: Industries (`nameIndustry`), Skills (`nameSkill`), Licenses (`nameLicense`), Education (`nameEducation`). Each is a simple single-field table with a `New`/list/detail screen, reachable from the main navigation. Access matches Companies/People/Jobs: any signed-in user linked to an Employee record has full read/write access. Name fields are unique per table to keep these lists usable as a controlled vocabulary; drop the `UNIQUE` constraint in the migration if you don't want that enforced. For a new installation, run the original setup SQL, then `Agribusiness_Recruitment_v0.1.4_Add_settings_tables.sql`. For an existing installation, stop Vite, run the migration, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes are needed. These tables aren't yet linked to Companies/People — that relationship is left for a future update.
 
 ## v0.1.3 — Companies/People name fields
 
