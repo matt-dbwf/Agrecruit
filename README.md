@@ -51,7 +51,7 @@ Host the resulting `dist` directory on your preferred static host. Retain the ro
 
 ## Included behaviour
 
-- Jobs: generated Sequence #, Pending status, required Title and Client. Identity sequence values are unique, may have gaps and are never editable. Pending is the only supported status initially.
+- Jobs: generated seq, Pending status, required Title and Client. Identity sequence values are unique, may have gaps and are never editable. Pending is the only supported status initially.
 - Companies: required Company Name and optional Client classification, default false.
 - People: required First Name and Last Name and optional Seeker classification, default false.
 - JobSeekers: multiple Seekers per Job and multiple Jobs per Seeker; duplicate pairs prohibited. Link/unlink associations from a saved Job.
@@ -74,3 +74,15 @@ Auth administration and subsequent database operations cross service boundaries.
 Company–Person relationships, recruiting stages, documents, placement records and additional statuses are intentionally left for later requirements.
 
 Reference: https://supabase.com/docs/guides/functions/auth
+
+## v0.1.3 — Companies/People name fields
+
+Renamed `Companies."Company Name"` to `nameCompany`, and `People."First Name"`/`"Last Name"` to `nameFirst`/`nameLast`, matching the existing Employees naming convention. For an existing installation, stop Vite, run the separately supplied `Agribusiness_Recruitment_v0.1.3_Rename_name_fields.sql` in the Supabase SQL Editor, replace the application files while retaining your `.env`, then run `npm ci` and `npm run dev`. The rename preserves indexes, constraints and RLS policies; no Edge Function redeployment is needed.
+
+## v0.1.1 correction
+
+Quoted PostgREST sort identifiers, including Sequence #, Company Name and Last Name. Embedded select expressions now preserve Company Name, First Name and Last Name rather than allowing the SDK to remove their spaces. No SQL or Edge Function changes are required. Three request-level regression tests are available with `npm test`.
+
+## v0.1.2 — seq field
+
+The generated Jobs field is now named `seq`. For an existing installation, stop Vite, run the separately supplied `Agribusiness_Recruitment_v0.1.2_Rename_seq.sql` in Supabase SQL Editor, replace the application files while retaining your `.env`, then run `npm ci` and `npm run dev`. The migration renames only the Jobs column and preserves existing numbers, identity generation, uniqueness and permissions. For a fresh installation using the original setup SQL, run that setup first and then this rename migration. Do not rerun the original setup on an existing installation. No Edge Function redeployment is needed.

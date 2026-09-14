@@ -13,3 +13,4 @@ export async function employeeAction(action, values) {
   return data.employee;
 }
 export function searchText(value) { return value.replace(/[,%().*\\]/g, ' ').trim().slice(0, 100); }
+
