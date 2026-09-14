@@ -75,6 +75,10 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.24 — Cross-navigation between Person Detail and Seeker Detail
+
+Added a button next to Edit to jump between the two views of the same Person record. On Person Detail, "Go to Seeker" appears only when the record is flagged as a Seeker (opens Seeker Detail for the same record). On Seeker Detail, "Go to Person" always appears (every Seeker is a Person). Both preserve the current record's id and switch only the list-context (People vs Seekers) driving which fields are shown, per v0.1.19/v0.1.20/v0.1.21. No database or Edge Function changes; frontend only.
+
 ## v0.1.23 — Company and Position columns on the People list
 
 The People list now shows Company and Position (embedding the linked Companies name, same technique Jobs already uses for its Client column). Display-only, not filterable — same as Jobs' Client column. These two columns are hidden on the Seekers-filtered list, since Company/Position are Person Detail-only fields (not shown or editable in Seeker Detail). No database or Edge Function changes; frontend only.
