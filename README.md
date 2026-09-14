@@ -75,6 +75,22 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.13 — Settings hub page
+
+Added a dedicated Settings page with quick-link tiles for Industries, Skills, Licenses, Education and (Manager-only) Employees, reachable via a Settings tile on Home and a single Settings link in the sidebar nav. The sidebar's separate Settings subsection (with one link per item) is gone; the nav is now just Jobs, Clients, Seekers, Settings — Companies and People no longer appear there directly (still reachable via their Home page tiles, or by opening a record from Clients/Seekers). No database or Edge Function changes; frontend only.
+
+## v0.1.12 — Clients/Seekers on the Home page
+
+Added Clients and Seekers quick-link tiles to the Home page, alongside the existing Companies and People tiles, matching the sidebar nav added in v0.1.10. No database or Edge Function changes; frontend only.
+
+## v0.1.11 — Drop redundant flag columns from general lists
+
+Removed the Client column/filter from the general Companies list, and the Seeker column/filter from the general People list, now that the dedicated Clients and Seekers nav items cover that use case. The flags themselves, the Detail screen's checkboxes, and the Selector component's Client/Seeker eligibility filtering are unchanged — this only affects what the two general list screens display and let you filter by. No database or Edge Function changes; frontend only.
+
+## v0.1.10 — Settings subsection, Clients/Seekers shortcuts
+
+The sidebar nav is now grouped: Jobs, Companies, People, Clients and Seekers up top, then a "Settings" subsection with Industries, Skills, Licenses, Education and (Manager-only) Employees. Clients and Seekers are filtered views of the existing Companies/People lists (`flag_Client`/`flag_Seeker` = true) rather than new tables — opening a record from either still opens the real Company/Person, and Save/Back return to the filtered list you came from. While wiring the Client filter in, fixed a regression from the v0.1.3 field rename where the Companies list had silently lost its `flag_Client` column (People kept the equivalent `flag_Seeker` column throughout) — it's restored now, and is what makes the Clients filter possible. No database or Edge Function changes; frontend only.
+
 ## v0.1.9 — Account name in sidebar
 
 The sidebar now shows the signed-in user's full name (First + Last) instead of just their first name, falling back to their email if both are blank. Clicking the name opens their own Employee record. Non-Managers can now reach exactly their own Employee record this way (matching the "Employees can read their own record" RLS rule already in place) — the Employees list/module stays Manager-only, and a non-Manager still can't open anyone else's record. Since only Managers can write to Employees (enforced by the `employees` Edge Function regardless of whose record it is), the Edit and Create User controls are now hidden for a non-Manager viewing their own record too, so there's no dead-end Save attempt. No database or Edge Function changes; frontend only.
