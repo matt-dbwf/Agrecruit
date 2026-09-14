@@ -75,6 +75,10 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.7 — Clickable list rows
+
+Removed the per-row "Open" button; the whole row now opens the record on click, with keyboard support (Tab to a row, Enter to open) and a visible focus outline. No database or Edge Function changes; frontend only.
+
 ## v0.1.6 — Brand logo
 
 Replaced the text "Agribusiness / Recruitment" brand mark with the actual Agrecruit horizontal logo, shown on the sign-in screen, the "connect your app" screen, and the sidebar (still linking Home). The image is currently hotlinked from `agrecruit.com.au` rather than bundled locally — that was a limitation of the environment this change was generated in (no outbound network access to download the binary), not a deliberate choice. Recommended follow-up: download the logo file yourself, add it under `src/assets/`, and change the single `logoUrl` constant in `App.svelte` to a local import so the app doesn't depend on the marketing site staying up. No database or Edge Function changes; frontend only.

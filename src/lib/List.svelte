@@ -15,13 +15,14 @@
  const {data,error:e,count:c}=await q;if(seq!==version)return;rows=data||[];count=c||0;error=e?.message||'';busy=false;
  }
  function turn(delta){page+=delta;load(table,page,filters);}
+ function rowLabel(row){return columns.map(([k,t])=>t==='text'||t==='number'?row[k]:null).filter(v=>v!=null&&v!=='').join(' ')||'record';}
  onDestroy(()=>{clearTimeout(timer);version++;});
 </script>
 <div class="toolbar"><div><h1>{table}</h1><p>{count} record{count===1?'':'s'}</p></div><button on:click={()=>open('new')}>New {singular[table]}</button></div>
 {#if error}<p role="alert" class="error">{error}</p>{/if}
 <div class="panel table-wrap"><table><thead><tr>{#each columns as [key,type,label]}<th>{label||key}
  {#if ['boolean','account','status'].includes(type)}<select aria-label={`Filter ${label||key}`} bind:value={filters[key]} on:change={schedule}><option value="">All</option>{#if type==='status'}<option>Pending</option>{:else}<option value="true">{type==='account'?'Linked':'Yes'}</option><option value="false">{type==='account'?'No account':'No'}</option>{/if}</select>{:else}<input aria-label={`Filter ${label||key}`} placeholder="Filter…" bind:value={filters[key]} on:input={schedule}/>{/if}
- </th>{/each}{#if table==='Jobs'}<th>Client</th>{/if}<th></th></tr></thead><tbody>
- {#if busy}<tr><td colspan="8">Loading…</td></tr>{:else}{#each rows as row}<tr>{#each columns as [key,type]}<td>{type==='boolean'?(row[key]?'Yes':'No'):type==='account'?(row[key]?'Linked':'No account'):row[key]||'—'}</td>{/each}{#if table==='Jobs'}<td>{row.Companies?.nameCompany||'—'}</td>{/if}<td><button class="text" on:click={()=>open(row.id)}>Open</button></td></tr>{:else}<tr><td colspan="8">No records found.</td></tr>{/each}{/if}
+ </th>{/each}{#if table==='Jobs'}<th>Client</th>{/if}</tr></thead><tbody>
+ {#if busy}<tr><td colspan="8">Loading…</td></tr>{:else}{#each rows as row}<tr class="row-link" tabindex="0" role="button" aria-label={`Open ${rowLabel(row)}`} on:click={()=>open(row.id)} on:keydown={e=>{if(e.key==='Enter')open(row.id);}}>{#each columns as [key,type]}<td>{type==='boolean'?(row[key]?'Yes':'No'):type==='account'?(row[key]?'Linked':'No account'):row[key]||'—'}</td>{/each}{#if table==='Jobs'}<td>{row.Companies?.nameCompany||'—'}</td>{/if}</tr>{:else}<tr><td colspan="8">No records found.</td></tr>{/each}{/if}
  </tbody></table></div>
 <div class="pagination"><button class="secondary" disabled={page===0||busy} on:click={()=>turn(-1)}>Previous</button><span>Page {page+1} of {Math.max(1,Math.ceil(count/25))}</span><button class="secondary" disabled={(page+1)*25>=count||busy} on:click={()=>turn(1)}>Next</button></div>
