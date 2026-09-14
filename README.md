@@ -75,6 +75,40 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.23 — Company and Position columns on the People list
+
+The People list now shows Company and Position (embedding the linked Companies name, same technique Jobs already uses for its Client column). Display-only, not filterable — same as Jobs' Client column. These two columns are hidden on the Seekers-filtered list, since Company/Position are Person Detail-only fields (not shown or editable in Seeker Detail). No database or Edge Function changes; frontend only.
+
+## v0.1.22 — Visible empty state for Selector fields
+
+`Selector.svelte` (used for Jobs' Client field and Person Detail's Company field) previously rendered nothing at all when read-only and nothing was selected — the field's existence, and that it's searchable once you click Edit, wasn't visible until you were already editing. It now shows a muted "Not selected" placeholder in that state. No database or Edge Function changes; frontend only.
+
+## v0.1.21 — Contact and address details in Seeker Detail
+
+Seeker Detail now also shows Contact (Phone, Mobile, Email, LinkedIn URL) and Physical/Mailing Address, in addition to the Employment section and the Industries/Skills/Education/Licenses panels — editable and saved the same as everywhere else. Company and Position remain Person Detail-only, unchanged. No database or Edge Function changes; frontend only.
+
+## v0.1.20 — Seeker-aware detail header/back label
+
+When a Person record is opened from the Seekers list, the detail page now shows "Seeker" as the record type (instead of "Person") and "← Seekers" as the back link (instead of "← People"). Opened from the People list, it still reads "Person"/"← People" as before. Every other table is unaffected. No database or Edge Function changes; frontend only.
+
+Note: the same "People" vs "Companies" wording mismatch exists for Clients (opening a Company from the Clients list still says "Company"/"← Companies"), which wasn't part of this request — happy to apply the same fix there if wanted.
+
+## v0.1.19 — Navigation-based People detail view
+
+Reworked which People fields show on the detail page based on which list you opened the record from, rather than the Seeker flag's value:
+- **From People**: Contact (Phone, Mobile, Email, LinkedIn URL), Physical Address, Mailing Address, plus Company and Position.
+- **From Seekers**: Employment (Date of Birth, Source, Current Position, Current Salary, Salary Range), plus the Industries/Skills/Education/Licenses link panels.
+
+The Seeker checkbox itself is still shown either way, since it's the flag that determines who shows up in the Seekers list; toggling it doesn't clear the other mode's field values, it's just not editable in the mode you're not currently viewing. A new Person created from the Seekers screen now defaults Seeker to checked (previously always unchecked regardless of context). No database or Edge Function changes; frontend only.
+
+## v0.1.18 — Link a non-Seeker Person to a Company
+
+Added `id_Company` and `position` to People, for a Person who works at a Company rather than being a Seeker candidate. On the detail form, unchecking Seeker now reveals a Company selector (any Company, not just those flagged Client) and a Position text field; checking Seeker hides them again (the field values are preserved either way — toggling the checkbox doesn't clear them). For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.18_Add_person_company_link.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes; RLS is row-level so the existing People policy already covers the new columns.
+
+## v0.1.17 — Contact, employment and address fields for People
+
+Added optional fields to People, grouped into sections on the detail form: Contact (Phone, Mobile, Email, LinkedIn URL), Employment (Date of Birth, Source, Current Position, Current Salary, Salary Range), Physical Address and Mailing Address (Street, Suburb, State, Postcode, Country each). Only First Name/Last Name remain required. Salary Range is free text (e.g. "$90k–$110k") rather than two numeric fields, and State/Country are free text rather than a constrained dropdown, since candidates and placements aren't necessarily Australia-only. These new fields don't appear in the People list columns, only on the detail form. For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.17_Add_person_fields.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes; RLS is row-level so the existing People policy already covers the new columns.
+
 ## v0.1.16 — Pair up the Seeker link panels
 
 On the Person detail page, Industries+Skills now sit side by side, and Education+Licenses sit side by side below them, instead of all four stacking full-width. Stacks back to one column on narrow/mobile widths. No database or Edge Function changes; frontend only.

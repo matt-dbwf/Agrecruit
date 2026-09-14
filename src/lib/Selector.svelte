@@ -10,7 +10,7 @@
  async function search(){const seq=++version;busy=true;error='';let q=supabase.from(table).select('*').limit(15);if(flag)q=q.eq(flag,true);const t=searchText(term);const sortField=nameField||(table==='Companies'?'nameCompany':'nameLast');if(t){q=nameField?q.ilike(nameField,`%${t}%`):table==='Companies'?q.ilike('nameCompany',`%${t}%`):q.or(`nameFirst.ilike.%${t}%,nameLast.ilike.%${t}%`);}const {data,error:e}=await q.order(quoteIdentifier(sortField));if(seq!==version)return;results=data||[];error=e?.message||'';busy=false;}
 </script>
 <div class="selector">
- {#if selected}<div class="selected">{name(selected)} {#if !disabled}<button type="button" class="text" on:click={()=>{value='';results=[];term='';}}>Clear</button>{/if}</div>{/if}
+ {#if selected}<div class="selected">{name(selected)} {#if !disabled}<button type="button" class="text" on:click={()=>{value='';results=[];term='';}}>Clear</button>{/if}</div>{:else if disabled}<div class="selected placeholder">Not selected</div>{/if}
  {#if !disabled}
  <input aria-label={label} placeholder={`Search ${label.toLowerCase()}…`} bind:value={term} on:input={schedule} on:focus={search}/>
  {#if busy}<small>Searching…</small>{/if}
