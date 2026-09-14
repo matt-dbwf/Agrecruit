@@ -1,6 +1,6 @@
 <script>
  import {onMount} from 'svelte';import {supabase,employeeAction} from './supabase';import Selector from './Selector.svelte';import JobSeekers from './JobSeekers.svelte';
- export let table;export let id;export let back;export let saved;
+ export let table;export let id;export let back;export let saved;export let canEditEmployees=true;
  let original=null,form={},editing=id==='new',busy=false,loading=id!=='new',error='',createUser=false,loginEmail='',password='',manager=false;
  const fields={Jobs:[['Title','Title']],Companies:[['nameCompany','Company Name']],People:[['nameFirst','First Name'],['nameLast','Last Name']],Employees:[['nameFirst','First Name'],['nameLast','Last Name'],['email','Email']],Industries:[['nameIndustry','Name']],Skills:[['nameSkill','Name']],Licenses:[['nameLicense','Name']],Education:[['nameEducation','Name']]};
  const singular={Jobs:'Job',Companies:'Company',People:'Person',Employees:'Employee',Industries:'Industry',Skills:'Skill',Licenses:'License',Education:'Education'};
@@ -10,7 +10,7 @@
  async function save(){busy=true;error='';try{let data;if(table==='Employees'){data=await employeeAction('save',{...(id==='new'?{}:{id}),...form});}else{const values={};for(const [key]of fields[table])values[key]=String(form[key]||'').trim();if(table==='Jobs'){values.id_Company=form.id_Company;values.Status='Pending';}if(table==='Companies')values.flag_Client=form.flag_Client===true;if(table==='People')values.flag_Seeker=form.flag_Seeker===true;const r=id==='new'?await supabase.from(table).insert(values).select().single():await supabase.from(table).update(values).eq('id',id).select().single();if(r.error)throw r.error;data=r.data;}original=data;form={...data};editing=false;if(id==='new')saved(data.id);}catch(e){error=e.message;}busy=false;}
  async function makeUser(){busy=true;error='';try{const data=await employeeAction('create-user',{id,email:loginEmail,password,flag_Manager:manager});original=data;form={...data};createUser=false;password='';}catch(e){error=e.message;}busy=false;}
 </script>
-<div class="toolbar"><div><button class="text" on:click={back}>← {table}</button><h1>{id==='new'?'New ':''}{singular[table]}{table==='Jobs'&&original?` #${original['seq']}`:''}</h1></div>{#if !editing&&!loading&&original}<button class="secondary" on:click={()=>{editing=true;createUser=false;}}>Edit</button>{/if}</div>
+<div class="toolbar"><div><button class="text" on:click={back}>← {table}</button><h1>{id==='new'?'New ':''}{singular[table]}{table==='Jobs'&&original?` #${original['seq']}`:''}</h1></div>{#if !editing&&!loading&&original&&(table!=='Employees'||canEditEmployees)}<button class="secondary" on:click={()=>{editing=true;createUser=false;}}>Edit</button>{/if}</div>
 {#if error}<p role="alert" class="error">{error}</p>{/if}
 {#if loading}<p>Loading…</p>{:else if id==='new'||original}
 <form class="panel" on:submit|preventDefault={save}><div class="form-grid">
@@ -22,6 +22,6 @@
 {#if table==='Employees'}<label class="check"><input type="checkbox" bind:checked={form.flag_Manager} disabled={!editing||busy||id==='new'}/>Manager</label>{#if id==='new'}<small>New Employees start without Manager access.</small>{/if}<label>User Account<input readonly value={form.id_User?'Linked':'No account'}/></label>{/if}
 </div>{#if editing}<small>* Required fields</small><div class="actions"><button type="button" class="secondary" disabled={busy} on:click={cancel}>Cancel</button><button disabled={busy||(table==='Jobs'&&!form.id_Company)}>{busy?'Saving…':'Save'}</button></div>{/if}</form>
 {#if table==='Jobs'&&id!=='new'&&!editing}<JobSeekers job={id}/>{/if}
-{#if table==='Employees'&&id!=='new'&&!form.id_User&&!editing}
+{#if table==='Employees'&&id!=='new'&&!form.id_User&&!editing&&canEditEmployees}
 {#if !createUser}<div class="actions"><button on:click={()=>{loginEmail=form.email||'';manager=form.flag_Manager;createUser=true;}}>Create User</button></div>{:else}<form class="panel" on:submit|preventDefault={makeUser}><h2>Create User</h2><div class="form-grid"><label>Login Email<input type="email" required bind:value={loginEmail}/></label><label>Temporary Password<input type="password" autocomplete="new-password" required bind:value={password}/></label><label class="check"><input type="checkbox" bind:checked={manager}/>Manager access</label></div><p class:valid={passwordValid}>Password requires at least 12 characters with an uppercase letter, lowercase letter, number and symbol.</p><div class="actions"><button type="button" class="secondary" disabled={busy} on:click={()=>{createUser=false;password='';}}>Cancel</button><button disabled={busy||!passwordValid||!loginEmail}>{busy?'Creating…':'Create User'}</button></div></form>{/if}
 {/if}{/if}

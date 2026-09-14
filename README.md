@@ -75,6 +75,10 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.9 — Account name in sidebar
+
+The sidebar now shows the signed-in user's full name (First + Last) instead of just their first name, falling back to their email if both are blank. Clicking the name opens their own Employee record. Non-Managers can now reach exactly their own Employee record this way (matching the "Employees can read their own record" RLS rule already in place) — the Employees list/module stays Manager-only, and a non-Manager still can't open anyone else's record. Since only Managers can write to Employees (enforced by the `employees` Edge Function regardless of whose record it is), the Edit and Create User controls are now hidden for a non-Manager viewing their own record too, so there's no dead-end Save attempt. No database or Edge Function changes; frontend only.
+
 ## v0.1.8 — Anchor sidebar to viewport height
 
 Fixed the sidebar (brand, nav, Sign out) being cropped off-screen when the page's content was taller than the viewport. The `.shell` layout is now pinned to `100vh` on desktop widths, with the main content area scrolling independently; the sidebar stays fixed to the window and the account/Sign out block stays anchored to its bottom. The same fix extends to the list view's pagination controls: `main` is now a flex column, and the table area (`.table-wrap`) grows to fill the leftover space and scrolls internally, so Previous/Next stay visible at the bottom without needing to scroll the page. Column headers/filters are now sticky within that scrolling area too, so they stay visible while rows scroll. On narrow/mobile widths, where the sidebar and content stack vertically, the page reverts to normal full-page scrolling and none of this internal-scroll/sticky behaviour applies. No database or Edge Function changes; frontend only.
