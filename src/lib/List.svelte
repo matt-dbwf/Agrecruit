@@ -4,7 +4,7 @@
  import { supabase,searchText } from './supabase';
  export let table;export let open;export let heading=undefined;export let presetFilter=null;
  let rows=[], filters={}, page=0,count=0,busy=false,error='',timer,version=0;
- const definitions={Jobs:[['seq','number'],['Status','status'],['Title','text']],Companies:[['nameCompany','text','Company Name']],People:[['nameFirst','text','First Name'],['nameLast','text','Last Name']],Employees:[['nameFirst','text','First Name'],['nameLast','text','Last Name'],['email','text','Email'],['id_User','account','User Account'],['flag_Manager','boolean','Manager']],Industries:[['nameIndustry','text','Name']],Skills:[['nameSkill','text','Name']],Licenses:[['nameLicense','text','Name']],Education:[['nameEducation','text','Name']]};
+ const definitions={Jobs:[['seq','number'],['status','status','Status'],['title','text','Title']],Companies:[['nameCompany','text','Company Name']],People:[['nameFirst','text','First Name'],['nameLast','text','Last Name']],Employees:[['nameFirst','text','First Name'],['nameLast','text','Last Name'],['email','text','Email'],['id_User','account','User Account'],['flag_Manager','boolean','Manager']],Industries:[['nameIndustry','text','Name']],Skills:[['nameSkill','text','Name']],Licenses:[['nameLicense','text','Name']],Education:[['nameEducation','text','Name']]};
  const singular={Jobs:'Job',Companies:'Company',People:'Person',Employees:'Employee',Industries:'Industry',Skills:'Skill',Licenses:'License',Education:'Education'};
  $: columns=(definitions[table]||[]).filter(([k])=>!presetFilter||k!==presetFilter.key);
  $: reset(table);

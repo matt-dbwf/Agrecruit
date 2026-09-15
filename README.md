@@ -51,7 +51,7 @@ Host the resulting `dist` directory on your preferred static host. Retain the ro
 
 ## Included behaviour
 
-- Jobs: generated seq, Pending status, required Title and Client. Identity sequence values are unique, may have gaps and are never editable. Pending is the only supported status initially.
+- Jobs: generated seq, Pending status, required title and Client. Identity sequence values are unique, may have gaps and are never editable. Pending is the only supported status initially.
 - Companies: required Company Name and optional Client classification, default false.
 - People: required First Name and Last Name and optional Seeker classification, default false.
 - JobSeekers: multiple Seekers per Job and multiple Jobs per Seeker; duplicate pairs prohibited. Link/unlink associations from a saved Job.
@@ -74,6 +74,28 @@ Auth administration and subsequent database operations cross service boundaries.
 Company–Person relationships, recruiting stages, documents, placement records and additional statuses are intentionally left for later requirements.
 
 Reference: https://supabase.com/docs/guides/functions/auth
+
+## v0.1.33 — Hide empty-state text for Contact/Address while editing
+
+Added a `hidePlaceholder` prop to `Selector.svelte`, tied to edit mode on Jobs' Contact and Address fields. While editing, "Not selected" is suppressed (the "Select a Client first" hint already explains why they're empty, so showing both was redundant). In view mode, the "Not selected" text still shows normally, same as Client, Employee, and People's Company field. No database or Edge Function changes; frontend only.
+
+## v0.1.32 — Selector: clear-before-reselect, fix label click-forwarding
+
+`Selector.svelte` no longer shows the search box when a value is already selected — you now have to click Clear first before picking a different one, rather than being able to search-and-overwrite directly.
+
+Found and fixed the actual cause of "the whole row is still clickable": every Selector was wrapped in a `<label>` alongside its caption text. Once the search box disappears (previous change), the Clear button becomes that label's *only* interactive control — and clicking anywhere inside a `<label>`, including on plain caption text, is native browser behavior that forwards the click to its associated control. That's what made the whole area act like the Clear button, not a CSS sizing issue. Fixed by switching every Selector's wrapper from `<label>` to a new `.field` div (same visual styling, no native label semantics) across all six usages: Jobs' Client/Contact/Address/Employee, People's Company field, and the "Add a {Skill/Industry/etc.}" and "Link a Seeker" pickers. No database or Edge Function changes; frontend only.
+
+## v0.1.31 — Contact, Address and Employee on Jobs
+
+Added three optional fields to Jobs: Contact (a Person), Address (a CompanyAddresses row), and Employee (any Employee, unfiltered — presumably the assigned recruiter). Contact and Address are filtered to the Job's currently selected Client: both selectors are disabled with a "Select a Client first" hint until a Client is chosen, and both reset automatically if you change the Client afterward, since a Contact/Address from the old Company wouldn't make sense against the new one.
+
+Under the hood, generalized `Selector.svelte` further: it now accepts `nameFn` (a display function, for entities like addresses that don't have a single "name" column), `sortField`/`searchFields` (explicit overrides instead of the hardcoded Companies/People-shaped defaults), and `filterColumn`/`filterValue` (an arbitrary `.eq()` filter, used here to scope Contact/Address to the Job's Client). All existing usages (Companies-as-Client, People-as-Seeker, the various Settings-table pickers) are unaffected — the new props default to the same behavior they already had.
+
+For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.31_Add_Jobs_contact_address_employee.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes. Note: there's no database-level constraint tying Contact/Address to the Job's actual Client — that's enforced only in the UI by filtering the picker, so a direct API/SQL write could still mismatch them.
+
+## v0.1.30 — Lowercase Jobs.status/title
+
+Renamed Jobs `"Status"` → `"status"` and `"Title"` → `"title"`, matching the lowercase-key convention used elsewhere (`nameCompany`, `nameFirst`, etc.). Display labels in the UI are unchanged ("Status", "Title"). For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.30_Rename_Jobs_status_title.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes; the rename preserves indexes, constraints and RLS policies.
 
 ## v0.1.29 — Pair Addresses/Contacts, swap LinkedIn for Position in Add Contact
 
