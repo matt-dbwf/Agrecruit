@@ -75,6 +75,38 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.40 — Remove date placeholder in read-only mode
+
+Any field classified as `date` by `fieldType()` now renders as plain text when not editing, instead of `type="date"` — removing the native "dd/mm/yyyy" hint in view mode (shows genuinely blank when empty, the raw date value when set). While editing, it's still a real `type="date"` input with the v0.1.39 forced-open calendar picker on click. Since this keys off `fieldType(key)==='date'` rather than specific field names, it automatically covers Start Date and Date of Birth today, and any date field added later without further changes. No database or Edge Function changes; frontend only.
+
+## v0.1.39 — Force calendar picker open on click for date fields
+
+Clicking into a native `<input type="date">` normally focuses a digit segment for typing — only the small calendar icon opens the popup picker. Added a click handler using `HTMLInputElement.showPicker()` (Chrome/Edge, recent Firefox) so clicking anywhere in a date field forces the calendar open, for both Start Date and Date of Birth. Typing digits directly still works too; this only adds the forced-open behavior on click. In browsers without `showPicker()` support, or when the field is read-only (view mode), the click is silently a no-op — no error, just normal native behavior. No database or Edge Function changes; frontend only.
+
+## v0.1.38 — Date inputs: reverted placeholder-removal attempt
+
+Attempted to suppress `<input type="date">`'s native "dd/mm/yyyy" empty-state hint via `input[type="date"]:placeholder-shown{color:transparent}`. This doesn't actually work: per the HTML spec, the `placeholder` attribute explicitly does not apply to `type="date"` inputs, so `:placeholder-shown` never matches one — there's no supported CSS/HTML hook to remove just that hint while keeping the native calendar picker. Reverted; date fields (Start Date, Date of Birth) use plain `type="date"` with normal browser-default behavior in both edit and view modes, same as before this was ever touched. No database or Edge Function changes; frontend only.
+
+## v0.1.37 — Split Jobs form into Job Details / Client Details panels
+
+The Jobs form is now two visually separate panels: "Job Details" (Title through Instructions) and "Client Details" (Client, Contact, Address, Employee). Still one continuous form/edit/save cycle — Edit, Cancel and Save behave exactly as before, just spanning two panels instead of one. Every other table (Companies, People, Employees, Settings tables) is unchanged, still a single panel with no heading. No database or Edge Function changes; frontend only.
+
+## v0.1.36 — Jobs form layout: wide Brief Description, Experience as textarea
+
+Brief Description now spans the full row (still a single-line input, just wider), bumping Location down to its own row paired with Industry. Experience is now a textarea like Full Description/Instructions/Terms, instead of a single-line input. Resulting layout: Title/Status, Brief Description (full width), Location/Industry, Start Date/Employment Type, Salary Min/Salary Max, then Full Description, Experience and Instructions each full-width below. No database or Edge Function changes; frontend only.
+
+## v0.1.35 — Ten more Jobs fields, and a save-payload bug fix
+
+Added, in this order underneath Title/Status: Brief Description, Location, Industry (single Selector, not the multi-select panel Companies/Seekers use), Start Date, Employment Type, Salary Min, Salary Max, Full Description (textarea), Experience, Instructions (textarea). All optional. Industry needed a Selector rather than a plain input despite being one value, so it's special-cased in the field loop alongside the existing textarea handling (now shared by Terms, Full Description, and Instructions).
+
+While wiring in the numeric/date fields, found a real bug in the existing save logic: every field was being sent as a trimmed string, including empty optional numbers and dates — which sends `""` into a `numeric`/`date` column and Postgres rejects it. This wasn't unique to the new fields; it already affected People's Current Salary/Date of Birth and Companies' Agrecruit %, they just hadn't been exercised with an empty save yet. Fixed generally: the save loop now sends `null` for an empty number/date field instead of `""`, based on each field's declared type. Text-type fields are unaffected — they still save as empty strings, unchanged.
+
+For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.35_Add_Jobs_detail_fields.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes.
+
+## v0.1.34 — Jobs form: drop seq, Title/Status first
+
+Removed the read-only `seq` field from the Jobs form — it's redundant with the `#123` shown in the page header. Title is now the first field, with Status immediately after it (they land side by side in the 2-column form grid). No database or Edge Function changes; frontend only.
+
 ## v0.1.33 — Hide empty-state text for Contact/Address while editing
 
 Added a `hidePlaceholder` prop to `Selector.svelte`, tied to edit mode on Jobs' Contact and Address fields. While editing, "Not selected" is suppressed (the "Select a Client first" hint already explains why they're empty, so showing both was redundant). In view mode, the "Not selected" text still shows normally, same as Client, Employee, and People's Company field. No database or Edge Function changes; frontend only.
