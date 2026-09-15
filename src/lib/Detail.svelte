@@ -1,5 +1,5 @@
 <script>
- import {onMount} from 'svelte';import {supabase,employeeAction} from './supabase';import Selector from './Selector.svelte';import JobSeekers from './JobSeekers.svelte';import EntityLinks from './EntityLinks.svelte';import CompanyContacts from './CompanyContacts.svelte';
+ import {onMount} from 'svelte';import {supabase,employeeAction} from './supabase';import Selector from './Selector.svelte';import JobSeekers from './JobSeekers.svelte';import EntityLinks from './EntityLinks.svelte';import CompanyContacts from './CompanyContacts.svelte';import CompanyAddresses from './CompanyAddresses.svelte';
  export let table;export let id;export let back;export let saved;export let canEditEmployees=true;export let seekerMode=false;export let clientMode=false;export let navigate=()=>{};
  let original=null,form={},editing=id==='new',busy=false,loading=id!=='new',error='',createUser=false,loginEmail='',password='',manager=false;
  const fields={Jobs:[['Title','Title']],Employees:[['nameFirst','First Name'],['nameLast','Last Name'],['email','Email']],Industries:[['nameIndustry','Name']],Skills:[['nameSkill','Name']],Licenses:[['nameLicense','Name']],Education:[['nameEducation','Name']]};
@@ -50,7 +50,10 @@
 <EntityLinks ownerId={id} ownerColumn="id_Company" junctionTable="CompanyIndustries" linkColumn="id_Industry" lookupTable="Industries" nameField="nameIndustry" label="Industries" singular="Industry"/>
 {/if}
 {#if table==='Companies'&&id!=='new'&&!editing}
+<div class="pair-grid">
+<CompanyAddresses company={id}/>
 <CompanyContacts company={id} open={personId=>navigate('People',personId)}/>
+</div>
 {/if}
 {#if table==='Employees'&&id!=='new'&&!form.id_User&&!editing&&canEditEmployees}
 {#if !createUser}<div class="actions"><button on:click={()=>{loginEmail=form.email||'';manager=form.flag_Manager;createUser=true;}}>Create User</button></div>{:else}<form class="panel" on:submit|preventDefault={makeUser}><h2>Create User</h2><div class="form-grid"><label>Login Email<input type="email" required bind:value={loginEmail}/></label><label>Temporary Password<input type="password" autocomplete="new-password" required bind:value={password}/></label><label class="check"><input type="checkbox" bind:checked={manager}/>Manager access</label></div><p class:valid={passwordValid}>Password requires at least 12 characters with an uppercase letter, lowercase letter, number and symbol.</p><div class="actions"><button type="button" class="secondary" disabled={busy} on:click={()=>{createUser=false;password='';}}>Cancel</button><button disabled={busy||!passwordValid||!loginEmail}>{busy?'Creating…':'Create User'}</button></div></form>{/if}

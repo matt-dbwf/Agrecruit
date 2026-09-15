@@ -75,6 +75,14 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.29 — Pair Addresses/Contacts, swap LinkedIn for Position in Add Contact
+
+Addresses and Contacts now sit side by side in a `.pair-grid`, matching the Industries/Skills pairing on Seeker Detail. In the Add Contact modal, swapped LinkedIn URL for Position — matches what the Contacts list already displays per row, and is a far more relevant field for a company contact than a LinkedIn profile. No database or Edge Function changes; frontend only.
+
+## v0.1.28 — Multiple addresses per Company/Client
+
+Added a new `CompanyAddresses` panel, shown on both Company Detail and Client Detail (like Contacts), for a one-to-many set of addresses per Company — head office, branch, warehouse, billing, however you want to label them (`label` is free text). "Add Address" opens a modal matching the Contacts one (Label, Street, Suburb, State, Postcode, Country). Existing addresses can be removed individually; there's no inline edit yet, only add/view/remove. For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.28_Add_company_addresses.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes; the new table's RLS matches the rest of the app.
+
 ## v0.1.27 — Contacts wording, modal Add Contact form
 
 Renamed the "People" panel on Company/Client Detail to "Contacts" (button, empty-state text, and the component file itself: `CompanyPeople.svelte` → `CompanyContacts.svelte`). "Add Contact" now opens a modal (new `.modal-overlay`/`.modal` styles) instead of expanding inline, and collects First Name/Last Name plus basic contact details (Phone, Mobile, Email, LinkedIn URL) rather than just the two names — all copied straight onto the new Person record along with `id_Company`. The modal closes on Escape, on backdrop click, or Cancel; a click inside the modal itself doesn't propagate to the backdrop. No database or Edge Function changes; frontend only.
