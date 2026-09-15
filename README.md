@@ -75,6 +75,10 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.54 — Statuses.flag_Display: hide a status from the nav
+
+Added `flag_Display` to Statuses (default true), editable via a checkbox on its detail form and shown as a column on the Statuses list. The nav panel's Jobs section only lists statuses where this is true; the Home page tiles always show every status regardless — that's a deliberate, explicit exception, not an oversight, and it's called out on the Statuses form itself so it's not a surprise later. For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.54_Add_Statuses_flag_Display.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes.
+
 ## v0.1.53 — Remove Statuses list filters
 
 Removed the per-column filter inputs from the Statuses list too, same treatment Jobs already got in v0.1.48 — column headers stay, filter controls are gone. No database or Edge Function changes; frontend only.
