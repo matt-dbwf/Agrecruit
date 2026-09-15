@@ -75,6 +75,23 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.48 — Remove Jobs list filters, nav job counts, nav/Home parity
+
+Three changes:
+- Removed the per-column filter inputs from the Jobs list (Title/seq no longer have search boxes; column headers remain, just without the filter controls). No other table's filters were touched.
+- Each Status link in the nav now shows a job count (e.g. "Pending 12"), via one lightweight `count:'exact',head:true` query per status, fetched alongside the status list itself and refetched on login, when leaving the Statuses settings page, and on every navigation into the Jobs section — so counts stay reasonably fresh without needing a full reload.
+- Standing rule going forward: any item added to the nav also gets added to Home. Applied retroactively here too — the single "Jobs" tile on Home is now one tile per Status (with its job count), matching the nav exactly, instead of one generic tile.
+
+No database or Edge Function changes; frontend only.
+
+## v0.1.47 — Jobs grouped by Status in the nav
+
+Replaced the single "Jobs" nav link with a "Jobs" section listing every Status (fetched from the Statuses table), each linking to the Jobs list filtered to that status. Clicking one sets a new `status` URL param alongside the existing `view`/`id` (e.g. `?view=Jobs&status=<uuid>`), which the Jobs list picks up as a preset filter — same mechanism Clients/Seekers already use for their filters, just dynamic instead of a fixed key/value. The filtered list also hides its own now-redundant Status column (every row shares it), matching how the Seekers list already hides the Seeker flag.
+
+The status list is fetched once after signing in, and again whenever you navigate away from the Statuses settings page — so adding/renaming/removing a status there updates the nav without needing a full reload, but edits made and then navigated away from in a background tab, or via direct API calls, won't be picked up until you next leave that settings page yourself.
+
+Since this replaces the nav link entirely (no unfiltered "All Jobs" link remains there), the Home page's Jobs tile is now the way to reach the complete, unfiltered list — worth knowing if that's not obvious. Detail's Back/Save navigation was updated to carry the current status filter through, so opening a Job from a filtered list and coming back returns you to that same filtered list, not the unfiltered one. No database or Edge Function changes; frontend only.
+
 ## v0.1.46 — Actually format Salary Min/Max as currency
 
 v0.1.45 removed the spinner and cleaned stored values but never added display formatting — a real gap, not just an unfinished nice-to-have. Fixed: when viewing (not editing), Salary Min/Max now render as `$10,000` via a `formatCurrency()` helper (`'$' + Number(v).toLocaleString('en-US')`). While editing, they still show the plain numeric value with no `$`/commas, to avoid cursor-jump issues from live-reformatting a comma-containing string as you type — formatting only applies to the read-only display. No database or Edge Function changes; frontend only.
