@@ -75,6 +75,30 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.53 — Remove Statuses list filters
+
+Removed the per-column filter inputs from the Statuses list too, same treatment Jobs already got in v0.1.48 — column headers stay, filter controls are gone. No database or Edge Function changes; frontend only.
+
+## v0.1.52 — Statuses.sort starts at 1, sequential
+
+Switched from multiples of 10 (10, 20, 30…) to plain sequential integers starting at 1 (1, 2, 3…): auto-increment on a new Status now adds 1 to the current max instead of 10, and drag-and-drop reordering renumbers every visible row to its plain 1-based position. For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.52_Renumber_Statuses_sort.sql` (renumbers existing values to the new scheme, preserving current relative order), replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes.
+
+## v0.1.51 — Auto-increment new Status sort, drag-and-drop reordering
+
+A new Status now defaults its Sort Order to 10 more than the current highest value (still editable before saving, same as any other pre-filled default). The Statuses list also supports drag-and-drop reordering: a grip handle (⠿) on each row, drag to a new position, and every visible row's sort value is rewritten (spaced by 10s) to match the new order.
+
+Reordering only activates when the list is genuinely reorderable as a whole — no active filter, on the first page, with 25 or fewer total records — since reordering a filtered subset or a single page of a larger list would silently corrupt the relative order of rows not currently visible. `sortable` is derived generically from whether a table's column definitions include a `sort` field, so any future sortable table gets this for free, not just Statuses.
+
+No database or Edge Function changes; frontend only.
+
+## v0.1.50 — Sort order for Statuses
+
+Added an optional `sort` (integer) field to Statuses, editable on its Detail form. It now controls display order in the nav panel's Jobs section, the Home page tiles, and the Statuses list itself (which previously all sorted alphabetically by status name). Existing statuses are backfilled in their current alphabetical order, spaced by 10s (10, 20, 30…) so you can insert a new one between two existing values without renumbering everything. A status with no sort value sorts last, after every explicitly-ordered one, with status name as a tie-breaker for stable ordering among ties/nulls. For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.50_Add_Statuses_sort.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes.
+
+## v0.1.49 — Hide zero job counts in the nav
+
+The nav's per-status job count badge no longer shows for a status with zero Jobs — just the status name, no "0". Left Home's tile text as-is ("0 jobs"), since that's a full sentence rather than a bare count badge and reads fine either way; let me know if you'd like that suppressed too. No database or Edge Function changes; frontend only.
+
 ## v0.1.48 — Remove Jobs list filters, nav job counts, nav/Home parity
 
 Three changes:
