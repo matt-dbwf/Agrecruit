@@ -1,20 +1,23 @@
 <script>
- import {onMount} from 'svelte';import {supabase,employeeAction} from './supabase';import Selector from './Selector.svelte';import JobSeekers from './JobSeekers.svelte';import PersonLinks from './PersonLinks.svelte';
- export let table;export let id;export let back;export let saved;export let canEditEmployees=true;export let seekerMode=false;export let clientMode=false;export let switchView=()=>{};
+ import {onMount} from 'svelte';import {supabase,employeeAction} from './supabase';import Selector from './Selector.svelte';import JobSeekers from './JobSeekers.svelte';import EntityLinks from './EntityLinks.svelte';import CompanyContacts from './CompanyContacts.svelte';
+ export let table;export let id;export let back;export let saved;export let canEditEmployees=true;export let seekerMode=false;export let clientMode=false;export let navigate=()=>{};
  let original=null,form={},editing=id==='new',busy=false,loading=id!=='new',error='',createUser=false,loginEmail='',password='',manager=false;
- const fields={Jobs:[['Title','Title']],Companies:[['nameCompany','Company Name']],Employees:[['nameFirst','First Name'],['nameLast','Last Name'],['email','Email']],Industries:[['nameIndustry','Name']],Skills:[['nameSkill','Name']],Licenses:[['nameLicense','Name']],Education:[['nameEducation','Name']]};
+ const fields={Jobs:[['Title','Title']],Employees:[['nameFirst','First Name'],['nameLast','Last Name'],['email','Email']],Industries:[['nameIndustry','Name']],Skills:[['nameSkill','Name']],Licenses:[['nameLicense','Name']],Education:[['nameEducation','Name']]};
  const nameFields=[['nameFirst','First Name'],['nameLast','Last Name']];
  const contactSection=[['_section_contact','Contact'],['phone','Phone',false],['mobile','Mobile',false],['email','Email',false],['linkedInURL','LinkedIn URL',false]];
  const employmentSection=[['_section_employment','Employment'],['dateOfBirth','Date of Birth',false],['source','Source',false],['currentPosition','Current Position',false],['currentSalary','Current Salary',false],['salaryRange','Salary Range',false]];
  const addressSections=[['_section_physical','Physical Address'],['physicalStreet','Street',false],['physicalSuburb','Suburb',false],['physicalState','State',false],['physicalPostcode','Postcode',false],['physicalCountry','Country',false],['_section_mailing','Mailing Address'],['mailingStreet','Street',false],['mailingSuburb','Suburb',false],['mailingState','State',false],['mailingPostcode','Postcode',false],['mailingCountry','Country',false]];
  const contactFields=[...nameFields,...contactSection,...addressSections];
  const seekerFields=[...nameFields,...contactSection,...employmentSection,...addressSections];
- $: currentFields=table==='People'?(seekerMode?seekerFields:contactFields):fields[table];
- const fieldType=key=>key==='email'?'email':key==='linkedInURL'?'url':key==='dateOfBirth'?'date':key==='currentSalary'?'number':'text';
+ const companyFields=[['nameCompany','Company Name'],['_section_contact','Contact'],['phone','Phone',false],['mobile','Mobile',false],['email','Email',false],['website','Website',false],['_section_business','Business Numbers'],['ACN','ACN',false],['ABN','ABN',false]];
+ const clientFields=[['nameCompany','Company Name'],['_section_client','Client Details'],['splitAgrecruit','Agrecruit %',false],['terms','Terms',false]];
+ $: currentFields=table==='People'?(seekerMode?seekerFields:contactFields):table==='Companies'?(clientMode?clientFields:companyFields):fields[table];
+ const fieldType=key=>key==='email'?'email':(key==='linkedInURL'||key==='website')?'url':key==='dateOfBirth'?'date':(key==='currentSalary'||key==='splitAgrecruit')?'number':'text';
  const isRequired=(table,key,flag,form)=>table==='Employees'&&key==='email'?!!form.id_User:flag!==false;
  const singular={Jobs:'Job',Companies:'Company',People:'Person',Employees:'Employee',Industries:'Industry',Skills:'Skill',Licenses:'License',Education:'Education'};
  $: recordLabel=table==='People'?(seekerMode?'Seeker':'Person'):table==='Companies'?(clientMode?'Client':'Company'):singular[table];
  $: backLabel=table==='People'?(seekerMode?'Seekers':'People'):table==='Companies'?(clientMode?'Clients':'Companies'):table;
+ function switchView(){navigate(table==='People'?(seekerMode?'People':'Seekers'):table==='Companies'?(clientMode?'Companies':'Clients'):table,id);}
  onMount(async()=>{if(id==='new'){form=table==='Jobs'?{Status:'Pending',id_Company:''}:table==='Companies'?{flag_Client:false}:table==='People'?{flag_Seeker:seekerMode}:table==='Employees'?{flag_Manager:false}:{};return;}const r=await supabase.from(table).select('*').eq('id',id).single();error=r.error?.message||'';original=r.data;form={...original};loading=false;});
  $: passwordValid=password.length>=12&&/[a-z]/.test(password)&&/[A-Z]/.test(password)&&/[0-9]/.test(password)&&/[^A-Za-z0-9]/.test(password);
  function cancel(){if(id==='new')back();else{form={...original};editing=false;error='';}}
@@ -26,7 +29,7 @@
 {#if loading}<p>Loading…</p>{:else if id==='new'||original}
 <form class="panel" on:submit|preventDefault={save}><div class="form-grid">
 {#if table==='Jobs'}<label>seq<input readonly value={form['seq']||'Generated on Save'}/></label><label>Status<input readonly value="Pending"/></label>{/if}
-{#each currentFields as [key,label,required]}{#if key.startsWith('_section_')}<h3 class="wide section-heading">{label}</h3>{:else}<label>{label}{#if editing&&isRequired(table,key,required,form)} <span class="required">*</span>{/if}<input type={fieldType(key)} bind:value={form[key]} readonly={!editing||busy} required={isRequired(table,key,required,form)}/></label>{/if}{/each}
+{#each currentFields as [key,label,required]}{#if key.startsWith('_section_')}<h3 class="wide section-heading">{label}</h3>{:else if key==='terms'}<label class="wide">{label}<textarea bind:value={form[key]} readonly={!editing||busy} rows="4"></textarea></label>{:else}<label>{label}{#if editing&&isRequired(table,key,required,form)} <span class="required">*</span>{/if}<input type={fieldType(key)} bind:value={form[key]} readonly={!editing||busy} required={isRequired(table,key,required,form)}/></label>{/if}{/each}
 {#if table==='Jobs'}<label class="wide">Client {#if editing}<span class="required">*</span>{/if}<Selector table="Companies" flag="flag_Client" label="Clients" bind:value={form.id_Company} disabled={!editing||busy}/>{#if editing&&!form.id_Company}<small>Select a Company marked as a Client.</small>{/if}</label>{/if}
 {#if table==='Companies'}<label class="check"><input type="checkbox" bind:checked={form.flag_Client} disabled={!editing||busy}/>Client</label>{/if}
 {#if table==='People'}<label class="check"><input type="checkbox" bind:checked={form.flag_Seeker} disabled={!editing||busy}/>Seeker</label>{#if !seekerMode}<label class="wide">Company<Selector table="Companies" nameField="nameCompany" label="Companies" bind:value={form.id_Company} disabled={!editing||busy}/></label><label>Position<input type="text" bind:value={form.position} readonly={!editing||busy}/></label>{/if}{/if}
@@ -35,13 +38,19 @@
 {#if table==='Jobs'&&id!=='new'&&!editing}<JobSeekers job={id}/>{/if}
 {#if table==='People'&&id!=='new'&&!editing&&seekerMode}
 <div class="pair-grid">
-<PersonLinks person={id} junctionTable="PersonIndustries" linkColumn="id_Industry" lookupTable="Industries" nameField="nameIndustry" label="Industries" singular="Industry"/>
-<PersonLinks person={id} junctionTable="PersonSkills" linkColumn="id_Skill" lookupTable="Skills" nameField="nameSkill" label="Skills" singular="Skill"/>
+<EntityLinks ownerId={id} junctionTable="PersonIndustries" linkColumn="id_Industry" lookupTable="Industries" nameField="nameIndustry" label="Industries" singular="Industry"/>
+<EntityLinks ownerId={id} junctionTable="PersonSkills" linkColumn="id_Skill" lookupTable="Skills" nameField="nameSkill" label="Skills" singular="Skill"/>
 </div>
 <div class="pair-grid">
-<PersonLinks person={id} junctionTable="PersonEducation" linkColumn="id_Education" lookupTable="Education" nameField="nameEducation" label="Education" singular="Education"/>
-<PersonLinks person={id} junctionTable="PersonLicenses" linkColumn="id_License" lookupTable="Licenses" nameField="nameLicense" label="Licenses" singular="License"/>
+<EntityLinks ownerId={id} junctionTable="PersonEducation" linkColumn="id_Education" lookupTable="Education" nameField="nameEducation" label="Education" singular="Education"/>
+<EntityLinks ownerId={id} junctionTable="PersonLicenses" linkColumn="id_License" lookupTable="Licenses" nameField="nameLicense" label="Licenses" singular="License"/>
 </div>
+{/if}
+{#if table==='Companies'&&id!=='new'&&!editing&&clientMode}
+<EntityLinks ownerId={id} ownerColumn="id_Company" junctionTable="CompanyIndustries" linkColumn="id_Industry" lookupTable="Industries" nameField="nameIndustry" label="Industries" singular="Industry"/>
+{/if}
+{#if table==='Companies'&&id!=='new'&&!editing}
+<CompanyContacts company={id} open={personId=>navigate('People',personId)}/>
 {/if}
 {#if table==='Employees'&&id!=='new'&&!form.id_User&&!editing&&canEditEmployees}
 {#if !createUser}<div class="actions"><button on:click={()=>{loginEmail=form.email||'';manager=form.flag_Manager;createUser=true;}}>Create User</button></div>{:else}<form class="panel" on:submit|preventDefault={makeUser}><h2>Create User</h2><div class="form-grid"><label>Login Email<input type="email" required bind:value={loginEmail}/></label><label>Temporary Password<input type="password" autocomplete="new-password" required bind:value={password}/></label><label class="check"><input type="checkbox" bind:checked={manager}/>Manager access</label></div><p class:valid={passwordValid}>Password requires at least 12 characters with an uppercase letter, lowercase letter, number and symbol.</p><div class="actions"><button type="button" class="secondary" disabled={busy} on:click={()=>{createUser=false;password='';}}>Cancel</button><button disabled={busy||!passwordValid||!loginEmail}>{busy?'Creating…':'Create User'}</button></div></form>{/if}

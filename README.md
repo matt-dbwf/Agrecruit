@@ -75,6 +75,24 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.27 — Contacts wording, modal Add Contact form
+
+Renamed the "People" panel on Company/Client Detail to "Contacts" (button, empty-state text, and the component file itself: `CompanyPeople.svelte` → `CompanyContacts.svelte`). "Add Contact" now opens a modal (new `.modal-overlay`/`.modal` styles) instead of expanding inline, and collects First Name/Last Name plus basic contact details (Phone, Mobile, Email, LinkedIn URL) rather than just the two names — all copied straight onto the new Person record along with `id_Company`. The modal closes on Escape, on backdrop click, or Cancel; a click inside the modal itself doesn't propagate to the backdrop. No database or Edge Function changes; frontend only.
+
+## v0.1.26 — Company Detail fields, Client Detail fields, related People
+
+Added fields to Companies, split by navigation context like People/Seekers:
+- **Company Detail**: Contact (Phone, Mobile, Email, Website) and Business Numbers (ACN, ABN), alongside the existing Company Name.
+- **Client Detail**: Industries (multi-select, same mechanism as the Seeker Industries/Skills/etc. panels), Agrecruit % (`splitAgrecruit`), and Terms (a multi-line text area, since fee/contract terms don't fit a single-line input).
+
+As with the original People/Seekers split, these are separate sets, not merged — Client Detail doesn't show Contact/Business Numbers unless you ask for that too, matching how Seeker Detail didn't show Contact/Address until a follow-up request.
+
+Also added, shown on **both** Company Detail and Client Detail: a People panel listing everyone whose `id_Company` points at this Company, with an inline "Add Person" form (First Name/Last Name, matching People's actual required fields) that creates a new Person already linked to this Company. Rows are clickable through to that Person's own detail page.
+
+Under the hood, generalized the four-panel Industries/Skills/Education/Licenses linker (previously hardcoded to People, `PersonLinks.svelte`) into `EntityLinks.svelte`, which now takes an `ownerColumn` (defaulting to `id_Person` for the existing People usages) so the same component could be reused for the new Company→Industries link without duplicating it. Also refactored `Detail.svelte` to receive the app's `navigate` function directly instead of a single-purpose `switchView` callback, since it now needs to navigate to an arbitrary related Person's page too, not just flip between the current record's two modes.
+
+For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.26_Add_company_fields.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes; RLS is row-level so the existing Companies policy already covers the new columns on that table, and the new `CompanyIndustries` junction table gets its own policy matching the rest of the app.
+
 ## v0.1.25 — Same treatment for Companies/Clients
 
 Mirrored the People/Seekers navigation-context work for Companies/Clients: opening a Company from the Companies list reads "Company"/"← Companies" as before; opening it from the Clients list now reads "Client"/"← Clients". A "Go to Client" button appears next to Edit on Company Detail when the record is flagged as a Client (mirroring "Go to Seeker"); "Go to Company" always appears on Client Detail (every Client is a Company, mirroring "Go to Person"). The People/Seekers field-visibility split (Contact/Address/Employment sections, Industries/Skills/Education/Licenses panels) has no Companies equivalent yet, since Companies only has one field (Company Name) plus the Client flag — nothing to split. No database or Edge Function changes; frontend only.
