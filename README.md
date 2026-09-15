@@ -75,6 +75,14 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.46 — Actually format Salary Min/Max as currency
+
+v0.1.45 removed the spinner and cleaned stored values but never added display formatting — a real gap, not just an unfinished nice-to-have. Fixed: when viewing (not editing), Salary Min/Max now render as `$10,000` via a `formatCurrency()` helper (`'$' + Number(v).toLocaleString('en-US')`). While editing, they still show the plain numeric value with no `$`/commas, to avoid cursor-jump issues from live-reformatting a comma-containing string as you type — formatting only applies to the read-only display. No database or Edge Function changes; frontend only.
+
+## v0.1.45 — Salary Min/Max as free-text currency fields
+
+Salary Min and Salary Max no longer use `type="number"` (which renders native up/down spinner arrows) — they're now `type="text"` with `inputmode="decimal"` for a numeric keyboard on mobile, while still validating/saving as proper numeric values underneath. On save, any `$`, commas, or spaces typed in (e.g. "$90,000") are stripped down to a clean numeric string before hitting the database; an empty field still saves as `null`, same as the v0.1.35 fix. Both fields are classified via a small `isCurrency()` helper, so extending this treatment to a future currency field is a one-line change. No database or Edge Function changes; frontend only.
+
 ## v0.1.44 — Fix Selector chip height in edit mode (Clear button)
 
 Read-only mode was fixed in v0.1.43, but edit mode still showed a slight height mismatch — the "Clear" button (only present in edit mode, inside the chip) carries its own `4px 8px` padding, taller than the bare selected-value text next to it, so the flex row grew to fit the button and the whole chip ended up taller than a plain input again. Removed the button's vertical padding (kept horizontal, for click-target width) so it matches the text's line height exactly. No database or Edge Function changes; frontend only.
