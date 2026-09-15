@@ -75,6 +75,16 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.41 — Statuses Settings table, Jobs.status becomes a real pick-list
+
+Added a Statuses Settings table (single `status` field, same design as Industries/Skills/Licenses/Education — required+unique, same RLS, same List/Detail treatment, a tile on the Settings page). Jobs' Status field is no longer hardcoded text always saved as "Pending" — it's now `id_Status`, a Selector picking from Statuses, same treatment as Industry. It sits in the same position as before (next to Title, same row), just editable now instead of a fixed readonly value.
+
+Migration path for existing data: the migration seeds a "Pending" row in Statuses and points every existing Job at it before dropping the old `status` text column, so nothing changes visually for existing Jobs until you deliberately pick a different status. New Jobs start with Status unset (not auto-defaulted to Pending) — you choose from the list, same as Industry.
+
+The Jobs list also needed updating, since it was querying the now-dropped `status` column directly: it now embeds the linked Status the same way it already embeds the linked Client, as a display-only column (not filterable, matching Client). The old Status filter dropdown (which only ever offered "Pending") is gone along with it.
+
+For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.41_Add_Statuses.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes.
+
 ## v0.1.40 — Remove date placeholder in read-only mode
 
 Any field classified as `date` by `fieldType()` now renders as plain text when not editing, instead of `type="date"` — removing the native "dd/mm/yyyy" hint in view mode (shows genuinely blank when empty, the raw date value when set). While editing, it's still a real `type="date"` input with the v0.1.39 forced-open calendar picker on click. Since this keys off `fieldType(key)==='date'` rather than specific field names, it automatically covers Start Date and Date of Birth today, and any date field added later without further changes. No database or Edge Function changes; frontend only.

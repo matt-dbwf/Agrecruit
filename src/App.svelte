@@ -3,9 +3,9 @@
  const logoUrl='https://agrecruit.com.au/assets/uploads/2026/02/agribusiness-recruitment-logo_horz_RGB.png';
  const tableFor={Clients:'Companies',Seekers:'People'};
  const presetFilterFor={Clients:{key:'flag_Client',value:true},Seekers:{key:'flag_Seeker',value:true}};
- const settingsViews=['Industries','Skills','Licenses','Education','Employees'];
+ const settingsViews=['Industries','Skills','Licenses','Education','Statuses','Employees'];
  let session=null,employee=null,initializing=!!supabase,email='',password='',busy=false,error='',view='Home',record='',authVersion=0;
- function readUrl(){const params=new URLSearchParams(location.search);view=['Home','Jobs','Companies','People','Employees','Industries','Skills','Licenses','Education','Clients','Seekers','Settings'].includes(params.get('view'))?params.get('view'):'Home';record=params.get('id')||'';}
+ function readUrl(){const params=new URLSearchParams(location.search);view=['Home','Jobs','Companies','People','Employees','Industries','Skills','Licenses','Education','Statuses','Clients','Seekers','Settings'].includes(params.get('view'))?params.get('view'):'Home';record=params.get('id')||'';}
  function navigate(v,id=''){const u=new URL(location.href);u.searchParams.set('view',v);if(id)u.searchParams.set('id',id);else u.searchParams.delete('id');history.pushState({},'',u);readUrl();error='';}
  async function applySession(next){const seq=++authVersion;session=next;employee=null;initializing=!!next;if(next){const r=await supabase.from('Employees').select('*').eq('id_User',next.user.id).single();if(seq!==authVersion)return;employee=r.data;error=r.error?'Your login has no accessible Employee record. Contact your administrator.':'';}initializing=false;}
  onMount(()=>{readUrl();window.addEventListener('popstate',readUrl);let sub;if(supabase){supabase.auth.getSession().then(({data})=>applySession(data.session));sub=supabase.auth.onAuthStateChange((_event,next)=>{setTimeout(()=>applySession(next),0);}).data.subscription;}return()=>{sub?.unsubscribe();window.removeEventListener('popstate',readUrl);authVersion++;};});
