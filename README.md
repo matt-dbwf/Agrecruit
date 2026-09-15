@@ -75,6 +75,18 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.44 — Fix Selector chip height in edit mode (Clear button)
+
+Read-only mode was fixed in v0.1.43, but edit mode still showed a slight height mismatch — the "Clear" button (only present in edit mode, inside the chip) carries its own `4px 8px` padding, taller than the bare selected-value text next to it, so the flex row grew to fit the button and the whole chip ended up taller than a plain input again. Removed the button's vertical padding (kept horizontal, for click-target width) so it matches the text's line height exactly. No database or Edge Function changes; frontend only.
+
+## v0.1.43 — Fix Selector chip height mismatch vs plain inputs
+
+`.selected` (the chip shown when a Selector has a value) was visibly taller than a plain input in the same grid row — e.g. Title vs Status. Cause: `margin-bottom:8px` on `.selected`, left over from when a search box could render directly below a selected chip; since v0.1.32 the search box is hidden whenever something's selected, so that pairing no longer happens and the margin was just dead space inflating the box. Removed it, and aligned `.selected`'s padding (10px → 11px) and added a transparent 1px border, matching a plain input's box exactly so the two line up pixel-for-pixel regardless of which field type sits next to which. No database or Edge Function changes; frontend only.
+
+## v0.1.42 — Fix required-asterisk breaking onto its own row
+
+Every `label`/`.field` uses `display:grid`, which turns each direct child into its own row. The required-field asterisk (`<span class="required">*</span>`) was a sibling of the label text and the input/Selector, so it rendered as its own row between them instead of sitting next to the label — most visible on Title vs Status, since only Title showed the asterisk, making its field 3 rows tall in edit mode against Status's 2, throwing off their alignment. Fixed everywhere this pattern appeared (4 spots: the main field loop and Client selector in `Detail.svelte`, First/Last Name in the Add Contact modal) by wrapping the label text and asterisk together in one `<span>`, so they form a single row with the control below. No database or Edge Function changes; frontend only.
+
 ## v0.1.41 — Statuses Settings table, Jobs.status becomes a real pick-list
 
 Added a Statuses Settings table (single `status` field, same design as Industries/Skills/Licenses/Education — required+unique, same RLS, same List/Detail treatment, a tile on the Settings page). Jobs' Status field is no longer hardcoded text always saved as "Pending" — it's now `id_Status`, a Selector picking from Statuses, same treatment as Industry. It sits in the same position as before (next to Title, same row), just editable now instead of a fixed readonly value.

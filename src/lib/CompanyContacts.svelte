@@ -21,8 +21,8 @@
 <h2>Add Contact</h2>
 {#if error}<p role="alert" class="error">{error}</p>{/if}
 <div class="form-grid">
-<label>First Name <span class="required">*</span><input bind:value={form.nameFirst} disabled={saving}/></label>
-<label>Last Name <span class="required">*</span><input bind:value={form.nameLast} disabled={saving}/></label>
+<label><span>First Name <span class="required">*</span></span><input bind:value={form.nameFirst} disabled={saving}/></label>
+<label><span>Last Name <span class="required">*</span></span><input bind:value={form.nameLast} disabled={saving}/></label>
 <label>Phone<input bind:value={form.phone} disabled={saving}/></label>
 <label>Mobile<input bind:value={form.mobile} disabled={saving}/></label>
 <label>Email<input type="email" bind:value={form.email} disabled={saving}/></label>
