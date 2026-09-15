@@ -10,6 +10,7 @@
  <span>{s.jobCount} job{s.jobCount===1?'':'s'}</span>
 </button>
 {/each}
+{#if statuses.length}<hr class="home-divider"/>{/if}
 {#each tiles as [name,blurb]}
 <button type="button" class="tile" on:click={()=>navigate(name)}>
  <strong>{name}</strong>

@@ -75,6 +75,10 @@ Company–Person relationships, recruiting stages, documents, placement records 
 
 Reference: https://supabase.com/docs/guides/functions/auth
 
+## v0.1.55 — Divider instead of "Jobs" label, on both nav and Home
+
+Removed the "Jobs" text label from the nav — the status links now stand on their own, followed by a plain divider line before Clients/Seekers/Settings. Applied the same pattern to Home: the per-status job tiles are followed by a full-width divider, then the rest of the tiles. Both dividers only render when there's at least one status tile/link above them, so a fresh install with no statuses yet doesn't show an orphaned line. Removed the now-unused `.nav-section` CSS (desktop and mobile) since nothing references it anymore. No database or Edge Function changes; frontend only.
+
 ## v0.1.54 — Statuses.flag_Display: hide a status from the nav
 
 Added `flag_Display` to Statuses (default true), editable via a checkbox on its detail form and shown as a column on the Statuses list. The nav panel's Jobs section only lists statuses where this is true; the Home page tiles always show every status regardless — that's a deliberate, explicit exception, not an oversight, and it's called out on the Statuses form itself so it's not a surprise later. For an existing installation, stop Vite, run `Agribusiness_Recruitment_v0.1.54_Add_Statuses_flag_Display.sql`, replace the application files while retaining your `.env`, then `npm ci` and `npm run dev`. No Edge Function changes.
